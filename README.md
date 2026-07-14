@@ -57,7 +57,7 @@ The script includes hard-coded recall-rate vectors for four sequencing centers:
 - `TRUE_WASHU`
 - `TRUE_BCM`
 - `TRUE_NYGC`
-- `TRUE_UW` or `TRUE_Broad`, depending on the script version
+- `TRUE_Broad`
 
 Each vector contains recall rates across VAF levels such as:
 
