@@ -11,10 +11,10 @@ The original MATLAB scripts were used for analyses and visualizations associated
 Open the self-contained HTML calculator:
 
 ```text
-Sequecning_coverage_calculator.html
+Sequencing_coverage_calculator.html
 ```
 
-[Launch the calculator](Sequecning_coverage_calculator.html)
+[Launch the calculator](Sequencing_coverage_calculator.html)
 
 
 No installation is required. The file can be opened directly in any modern web browser.
