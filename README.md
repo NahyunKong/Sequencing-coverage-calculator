@@ -11,12 +11,12 @@ The original MATLAB scripts were used for analyses and visualizations associated
 Open the self-contained HTML calculator:
 
 ```text
-outputs/VAF_heatmap_calculator.html
+Sequecning_coverage_calculator.html
 ```
 
 No installation is required. The file can be opened directly in any modern web browser.
 
-The browser calculator reproduces the main functionality of `VAF_heatmap-2.m`:
+The browser calculator reproduces the main functionality of `VAF_heatmap.m`:
 
 - accepts user-provided `k0`, `VAF`, `n`, and `pE`
 - reports the expected variant detection rate
@@ -70,13 +70,13 @@ The script compares detection-rate model configurations including:
 
 It also computes summary statistics such as SSE and RMSE, then generates model-comparison plots. These outputs are used to evaluate which analytical model best matches the observed recall-rate data.
 
-### `VAF_heatmap-2.m`
+### `VAF_heatmap.m`
 
 Calculates variant detection probability for a user-provided sequencing scenario and generates a heatmap across preset VAF and sequencing coverage values.
 
 This script is the MATLAB source for the browser calculator.
 
-## How `VAF_heatmap-2.m` Works
+## How `VAF_heatmap.m` Works
 
 ### 1. Collect user inputs
 
