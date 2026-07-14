@@ -14,6 +14,9 @@ Open the self-contained HTML calculator:
 Sequecning_coverage_calculator.html
 ```
 
+[Launch the calculator](Sequencing-coverage-calculator.html)
+
+
 No installation is required. The file can be opened directly in any modern web browser.
 
 The browser calculator reproduces the main functionality of `VAF_heatmap.m`:
