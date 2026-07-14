@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VAF Detection Rate Calculator</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17202a;
+      --muted: #52616f;
+      --line: #cdd6df;
+      --panel: #f7f9fb;
+      --accent: #0f6b8f;
+      --warn: #b13b2e;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: #ffffff;
+    }
+
+    main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 24px auto 40px;
+    }
+
+    h1 {
+      margin: 0 0 4px;
+      font-size: clamp(1.7rem, 3vw, 2.45rem);
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 0 0 22px;
+      color: var(--muted);
+      line-height: 1.45;
+      max-width: 850px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 340px) 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    .controls {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 8px;
+      padding: 18px;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    input {
+      width: 100%;
+      min-height: 42px;
+      padding: 8px 10px;
+      border: 1px solid #9fb0bf;
+      border-radius: 6px;
+      font-size: 1rem;
+      background: white;
+      color: var(--ink);
+    }
+
+    input:focus {
+      outline: 3px solid rgba(15, 107, 143, 0.22);
+      border-color: var(--accent);
+    }
+
+    .hint {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.3;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    button {
+      min-height: 42px;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-weight: 700;
+      color: white;
+      background: var(--accent);
+      cursor: pointer;
+    }
+
+    button.secondary {
+      color: var(--accent);
+      background: white;
+    }
+
+    .result {
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 8px;
+      background: white;
+      border: 1px solid var(--line);
+    }
+
+    .result-label {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-bottom: 6px;
+    }
+
+    .result-value {
+      font-size: clamp(1.8rem, 5vw, 2.7rem);
+      font-weight: 800;
+      color: #07496b;
+      line-height: 1;
+    }
+
+    .result-small {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .error {
+      display: none;
+      margin-top: 12px;
+      color: var(--warn);
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .heatmap-wrap {
+      min-width: 0;
+    }
+
+    .heatmap-title {
+      margin: 0 0 12px;
+      text-align: center;
+      font-size: clamp(1.15rem, 2.2vw, 1.55rem);
+    }
+
+    .heatmap-area {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) 54px;
+      grid-template-rows: auto auto;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .y-label {
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      font-weight: 700;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .map-and-x {
+      min-width: 0;
+    }
+
+    .heatmap {
+      display: grid;
+      grid-template-columns: repeat(9, minmax(54px, 1fr));
+      border: 1px solid #41505e;
+      overflow: auto;
+    }
+
+    .cell {
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px;
+      border-right: 1px solid rgba(22, 32, 42, 0.45);
+      border-bottom: 1px solid rgba(22, 32, 42, 0.45);
+      font-weight: 800;
+      text-align: center;
+      font-size: clamp(0.78rem, 1.6vw, 1rem);
+    }
+
+    .cell:nth-child(9n) {
+      border-right: 0;
+    }
+
+    .cell:nth-last-child(-n+9) {
+      border-bottom: 0;
+    }
+
+    .x-axis {
+      display: grid;
+      grid-template-columns: repeat(9, minmax(54px, 1fr));
+      margin-top: 8px;
+      text-align: center;
+      font-weight: 700;
+      color: #2d3740;
+    }
+
+    .x-label {
+      margin-top: 4px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.12rem;
+    }
+
+    .y-axis {
+      display: grid;
+      grid-template-rows: repeat(7, 70px);
+      text-align: right;
+      font-weight: 700;
+      color: #2d3740;
+      align-self: stretch;
+    }
+
+    .y-tick {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 4px;
+    }
+
+    .legend {
+      height: 100%;
+      min-height: 490px;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 6px;
+      align-items: center;
+      justify-items: center;
+      font-weight: 700;
+    }
+
+    .legend-bar {
+      width: 28px;
+      height: 100%;
+      min-height: 420px;
+      border: 1px solid #596978;
+      background: linear-gradient(to top, #073061, #2166ac, #4393c3, #92c5de, #d1e5f0, #f7f7f7, #fddbc7, #f4a582, #d6604d, #b2182b, #67001f);
+    }
+
+    .note {
+      margin-top: 18px;
+      color: var(--muted);
+      line-height: 1.45;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 880px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .heatmap-area {
+        grid-template-columns: auto minmax(620px, 1fr) 46px;
+        overflow-x: auto;
+        padding-bottom: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>VAF Detection Rate Calculator</h1>
+    <p class="subtitle">
+      Browser version of the MATLAB VAF heatmap model. Enter the required supporting reads, VAF, read depth, and sequencing error rate to estimate the variant detection rate.
+    </p>
+
+    <div class="layout">
+      <section class="controls" aria-label="Calculator inputs">
+        <div class="field">
+          <label for="k0">Required supporting reads (k0)</label>
+          <input id="k0" type="number" inputmode="numeric" min="1" step="1" value="1">
+        </div>
+        <div class="field">
+          <label for="vaf">Variant allele frequency (VAF)</label>
+          <input id="vaf" type="number" inputmode="decimal" min="0.000001" max="0.999999" step="0.0001" value="0.01">
+          <span class="hint">Use decimal form: 0.01 means 1%.</span>
+        </div>
+        <div class="field">
+          <label for="depth">Total read depth (n)</label>
+          <input id="depth" type="number" inputmode="numeric" min="1" step="1" value="100">
+        </div>
+        <div class="field">
+          <label for="errorRate">Sequencing error rate (pE)</label>
+          <input id="errorRate" type="number" inputmode="decimal" min="0.000001" max="0.999999" step="0.0001" value="0.001">
+          <span class="hint">Use decimal form: 0.001 means 0.1%.</span>
+        </div>
+
+        <div class="button-row">
+          <button type="button" id="calculate">Calculate</button>
+          <button type="button" class="secondary" id="reset">Reset</button>
+        </div>
+
+        <div class="error" id="error" role="alert"></div>
+
+        <div class="result" aria-live="polite">
+          <div class="result-label">Variant detection rate</div>
+          <div class="result-value" id="ratePercent">64.5612%</div>
+          <div class="result-small" id="rateDecimal">Decimal: 0.645612</div>
+        </div>
+      </section>
+
+      <section class="heatmap-wrap" aria-label="Detection rate heatmap">
+        <h2 class="heatmap-title" id="heatmapTitle">Variant detection rate (%; required supporting read = 1)</h2>
+        <div class="heatmap-area">
+          <div class="y-label">VAF (%)</div>
+          <div class="map-and-x">
+            <div style="display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 6px;">
+              <div class="y-axis" id="yAxis"></div>
+              <div class="heatmap" id="heatmap"></div>
+            </div>
+            <div style="display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 6px;">
+              <div></div>
+              <div>
+                <div class="x-axis" id="xAxis"></div>
+                <div class="x-label">Coverage (X)</div>
+              </div>
+            </div>
+          </div>
+          <div class="legend" aria-label="Color scale from 0 to 100 percent">
+            <div>100</div>
+            <div class="legend-bar"></div>
+            <div>0</div>
+          </div>
+        </div>
+        <p class="note">
+          Model: detection is the binomial probability of observing at least k0 supporting reads, where each read supports the variant with probability VAF*(1-pE) + (1-VAF)*pE/3.
+        </p>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const vafGrid = [0.1, 0.05, 0.025, 0.01, 0.005, 0.0025, 0.001];
+    const vafLabels = ["10", "5", "2.5", "1", "0.5", "0.25", "0.1"];
+    const coverageGrid = [30, 60, 100, 200, 300, 400, 500, 600, 1000];
+
+    const inputs = {
+      k0: document.getElementById("k0"),
+      vaf: document.getElementById("vaf"),
+      depth: document.getElementById("depth"),
+      errorRate: document.getElementById("errorRate")
+    };
+
+    const heatmap = document.getElementById("heatmap");
+    const xAxis = document.getElementById("xAxis");
+    const yAxis = document.getElementById("yAxis");
+    const errorBox = document.getElementById("error");
+    const ratePercent = document.getElementById("ratePercent");
+    const rateDecimal = document.getElementById("rateDecimal");
+    const heatmapTitle = document.getElementById("heatmapTitle");
+
+    function supportingProbability(vaf, pE) {
+      return vaf * (1 - pE) + (1 - vaf) * pE / 3;
+    }
+
+    function binomialTailAtLeast(k0, n, p) {
+      if (k0 <= 0) return 1;
+      if (k0 > n) return 0;
+      if (p <= 0) return 0;
+      if (p >= 1) return 1;
+
+      let prob = Math.pow(1 - p, n);
+      let cumulativeBelow = prob;
+
+      for (let k = 1; k < k0; k += 1) {
+        prob *= ((n - k + 1) / k) * (p / (1 - p));
+        cumulativeBelow += prob;
+      }
+
+      return Math.max(0, Math.min(1, 1 - cumulativeBelow));
+    }
+
+    function formatCell(value) {
+      if (value >= 99.995) return "100";
+      if (value >= 10) return value.toFixed(2).replace(/\.?0+$/, "");
+      return value.toFixed(3).replace(/\.?0+$/, "");
+    }
+
+    function interpolateColor(value) {
+      const stops = [
+        [0, [6, 46, 97]],
+        [10, [33, 102, 172]],
+        [20, [67, 147, 195]],
+        [35, [146, 197, 222]],
+        [50, [247, 247, 247]],
+        [65, [244, 165, 130]],
+        [80, [214, 96, 77]],
+        [90, [178, 24, 43]],
+        [100, [103, 0, 31]]
+      ];
+
+      const clamped = Math.max(0, Math.min(100, value));
+      for (let i = 0; i < stops.length - 1; i += 1) {
+        const [leftValue, leftColor] = stops[i];
+        const [rightValue, rightColor] = stops[i + 1];
+        if (clamped >= leftValue && clamped <= rightValue) {
+          const ratio = (clamped - leftValue) / (rightValue - leftValue);
+          const rgb = leftColor.map((channel, index) => {
+            return Math.round(channel + (rightColor[index] - channel) * ratio);
+          });
+          return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+        }
+      }
+      return "rgb(103, 0, 31)";
+    }
+
+    function textColorForBackground(percent) {
+      return percent < 35 || percent > 70 ? "#ffffff" : "#111820";
+    }
+
+    function readValues() {
+      const values = {
+        k0: Number(inputs.k0.value),
+        vaf: Number(inputs.vaf.value),
+        depth: Number(inputs.depth.value),
+        errorRate: Number(inputs.errorRate.value)
+      };
+
+      const messages = [];
+      if (!Number.isInteger(values.k0) || values.k0 <= 0) messages.push("k0 must be a positive integer.");
+      if (!(values.vaf > 0 && values.vaf < 1)) messages.push("VAF must be between 0 and 1.");
+      if (!Number.isInteger(values.depth) || values.depth <= 0) messages.push("Read depth must be a positive integer.");
+      if (!(values.errorRate > 0 && values.errorRate < 1)) messages.push("Sequencing error rate must be between 0 and 1.");
+
+      if (messages.length > 0) {
+        errorBox.textContent = messages.join(" ");
+        errorBox.style.display = "block";
+        return null;
+      }
+
+      errorBox.textContent = "";
+      errorBox.style.display = "none";
+      return values;
+    }
+
+    function renderAxes() {
+      xAxis.innerHTML = "";
+      yAxis.innerHTML = "";
+
+      coverageGrid.forEach((coverage) => {
+        const tick = document.createElement("div");
+        tick.textContent = coverage;
+        xAxis.appendChild(tick);
+      });
+
+      vafLabels.forEach((label) => {
+        const tick = document.createElement("div");
+        tick.className = "y-tick";
+        tick.textContent = label;
+        yAxis.appendChild(tick);
+      });
+    }
+
+    function update() {
+      const values = readValues();
+      if (!values) return;
+
+      const p = supportingProbability(values.vaf, values.errorRate);
+      const rate = binomialTailAtLeast(values.k0, values.depth, p);
+      ratePercent.textContent = `${(rate * 100).toFixed(4)}%`;
+      rateDecimal.textContent = `Decimal: ${rate.toFixed(6)}`;
+      heatmapTitle.textContent = `Variant detection rate (%; required supporting read = ${values.k0})`;
+
+      heatmap.innerHTML = "";
+      vafGrid.forEach((vaf) => {
+        coverageGrid.forEach((coverage) => {
+          const gridP = supportingProbability(vaf, values.errorRate);
+          const percent = binomialTailAtLeast(values.k0, coverage, gridP) * 100;
+          const cell = document.createElement("div");
+          cell.className = "cell";
+          cell.textContent = formatCell(percent);
+          cell.style.background = interpolateColor(percent);
+          cell.style.color = textColorForBackground(percent);
+          cell.title = `VAF ${vaf * 100}%, coverage ${coverage}X: ${percent.toFixed(4)}%`;
+          heatmap.appendChild(cell);
+        });
+      });
+    }
+
+    document.getElementById("calculate").addEventListener("click", update);
+    document.getElementById("reset").addEventListener("click", () => {
+      inputs.k0.value = "1";
+      inputs.vaf.value = "0.01";
+      inputs.depth.value = "100";
+      inputs.errorRate.value = "0.001";
+      update();
+    });
+
+    Object.values(inputs).forEach((input) => {
+      input.addEventListener("input", update);
+    });
+
+    renderAxes();
+    update();
+  </script>
+</body>
+</html>
