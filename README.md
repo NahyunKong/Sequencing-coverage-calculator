@@ -285,7 +285,3 @@ If you use these scripts or results generated from them, please cite:
 ```text
 A Pangenomic Method for Establishing a Somatic Variant Detection Resource in HapMap Mixtures
 ```
-
-## Notes
-
-This calculator is intended as an accessible implementation of the MATLAB model. For publication, clinical, or production use, validate the implementation and assumptions against the intended sequencing platform, variant-calling criteria, and study design.
