@@ -14,7 +14,7 @@ Open the self-contained HTML calculator:
 Sequencing_coverage_calculator.html
 ```
 
-[Launch the calculator](Sequencing_coverage_calculator.html)
+[Launch the calculator]([Sequencing_coverage_calculator.html](https://nahyunkong.github.io/Sequencing-coverage-calculator/Sequencing_coverage_calculator.html))
 
 
 No installation is required. The file can be opened directly in any modern web browser.
