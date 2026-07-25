@@ -256,7 +256,6 @@ or:
 VAF_heatmap
 ```
 
-For `VAF_heatmap.m`, MATLAB may display the runnable script name as `VAF_heatmap` if the file is renamed to `VAF_heatmap.m`.
 
 ## Files
 
