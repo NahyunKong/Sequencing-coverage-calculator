@@ -4,7 +4,7 @@ An optimal coverage calculator for estimating somatic variant detection probabil
 
 This repository contains MATLAB modeling scripts and a browser-based version of the VAF heatmap calculator. The browser version was added so users can run the calculator without installing MATLAB.
 
-The original MATLAB scripts were used for analyses and visualizations associated with Figure 3 and Supplementary Figures S10-S11.
+The original MATLAB script(modelFitting.m) was used for analyses and visualizations associated with Figure 3 and Supplementary Figures S10-S11.
 
 ## Browser Calculator
 
